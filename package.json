@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "@react-native-community/datetimepicker": "^8.6.0",
+    "axios": "^1.13.5",
+    "form-data": "^4.0.5"
+  }
+}
