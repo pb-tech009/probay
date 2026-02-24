@@ -9,25 +9,17 @@ const initializeFirebase = () => {
     if (firebaseInitialized) return;
     
     try {
-        // For production, use service account key file
-        // const serviceAccount = require('../config/firebase-service-account.json');
-        // admin.initializeApp({
-        //     credential: admin.credential.cert(serviceAccount)
-        // });
+        // Use service account key file
+        const serviceAccount = require('../config/firebase-service-account.json');
+        admin.initializeApp({
+            credential: admin.credential.cert(serviceAccount),
+            projectId: 'propbay-609cf'
+        });
         
-        // For development, you can use default credentials
-        if (process.env.FIREBASE_PROJECT_ID) {
-            admin.initializeApp({
-                credential: admin.credential.applicationDefault(),
-                projectId: process.env.FIREBASE_PROJECT_ID
-            });
-            firebaseInitialized = true;
-            console.log('Firebase Admin SDK initialized');
-        } else {
-            console.log('Firebase not configured. Set FIREBASE_PROJECT_ID in .env');
-        }
+        firebaseInitialized = true;
+        console.log('✅ Firebase Admin SDK initialized successfully');
     } catch (error) {
-        console.error('Firebase initialization error:', error.message);
+        console.error('❌ Firebase initialization error:', error.message);
     }
 };
 

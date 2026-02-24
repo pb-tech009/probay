@@ -540,4 +540,25 @@ router.get('/analytics', auth, async (req, res) => {
     }
 });
 
+// Get all broker leads (for lead management screen)
+router.get('/broker/my-leads', auth, async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id);
+        
+        if (user.role !== 'owner') {
+            return res.status(403).json({ msg: 'Only owners/brokers can access this' });
+        }
+
+        const leads = await Lead.find({ owner: req.user.id })
+            .populate('tenant', 'name phoneNumber profileImage')
+            .populate('property', 'title images price type city area')
+            .sort({ createdAt: -1 });
+
+        res.json(leads);
+    } catch (err) {
+        console.error('Get Broker Leads Error:', err);
+        res.status(500).json({ msg: err.message });
+    }
+});
+
 module.exports = router;

@@ -61,9 +61,9 @@ export default function LoginScreen() {
     try {
       const result = await verifyOtp.mutateAsync({ phoneNumber: phone, otp });
       if (result.user.role === 'none') {
-        router.replace('/role-selection' as any);
+        router.replace({ pathname: '/role-selection' as any, params: { userId: result.user._id } });
       } else {
-        router.replace('/(tabs)');
+        router.replace('/tabs' as any);
       }
     } catch (e: any) {
       Alert.alert('Error', e.message || 'Invalid OTP');

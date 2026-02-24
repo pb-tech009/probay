@@ -26,7 +26,7 @@ export default function TabLayout() {
       }}
     >
       <Tabs.Screen
-        name="(home)"
+        name="home"
         options={{
           title: 'Home',
           tabBarIcon: ({ color, size }) => <Home size={size} color={color} />,
@@ -37,8 +37,7 @@ export default function TabLayout() {
         options={{
           title: 'Explore',
           tabBarIcon: ({ color, size }) => <Search size={size} color={color} />,
-          // Hide Explore tab for Pro Partner (Owner/Broker)
-          href: isProPartner ? null : '/explore',
+          href: isProPartner ? null : undefined,
         }}
       />
       <Tabs.Screen

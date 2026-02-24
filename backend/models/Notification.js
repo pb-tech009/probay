@@ -19,6 +19,9 @@ const notificationSchema = new mongoose.Schema({
             'offer_received', 'offer_accepted_by_tenant', 'offer_counter',
             'new_message', 'property_views_milestone',
             
+            // Lead/Contact notifications
+            'new_lead', 'unlock_request', 'lead_update', 'contact_unlocked',
+            
             // Tenant notifications
             'new_property_in_area', 'price_drop', 'property_available',
             'owner_new_property', 'owner_replied', 'visit_approved', 'visit_rejected',
@@ -54,6 +57,10 @@ const notificationSchema = new mongoose.Schema({
         visitId: { type: mongoose.Schema.Types.ObjectId, ref: 'Visit' },
         offerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Offer' },
         chatId: { type: mongoose.Schema.Types.ObjectId, ref: 'Chat' },
+        leadId: { type: mongoose.Schema.Types.ObjectId, ref: 'Lead' },
+        priority: String,
+        status: String,
+        ownerPhone: String,
         actionUrl: String,
         imageUrl: String
     },

@@ -59,6 +59,8 @@ android/app/release/
 firebase-debug.log
 firestore-debug.log
 ui-debug.log
+*firebase-adminsdk*.json
+backend/config/firebase-service-account.json
 
 # Testing
 coverage/

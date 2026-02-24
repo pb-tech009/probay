@@ -209,7 +209,7 @@ router.put('/profile/update', auth, async (req, res) => {
 });
 
 // Get all broker properties
-router.get('/properties', auth, async (req, res) => {
+router.get('/my-properties', auth, async (req, res) => {
     try {
         const user = await User.findById(req.user.id);
         
@@ -224,95 +224,8 @@ router.get('/properties', auth, async (req, res) => {
         res.json(properties);
     } catch (err) {
         console.error('Get Broker Properties Error:', err);
-        res.status(500).json({ msg: err.message });
-    }
-});
-
-// Get all broker leads
-router.get('/leads', auth, async (req, res) => {
-    try {
-        const user = await User.findById(req.user.id);
-        
-        if (user.role !== 'owner') {
-            return res.status(403).json({ msg: 'Only owners/brokers can access this' });
-        }
-
-        const { status, priority } = req.query;
-        
-        let query = { owner: req.user.id };
-        
-        if (status) {
-            query.status = status;
-        }
-        
-        if (priority) {
-            query.priority = priority;
-        }
-
-        const leads = await Lead.find(query)
-            .populate('tenant', 'name phoneNumber profileImage')
-            .populate('property', 'title images price type city area')
-            .sort({ createdAt: -1 });
-
-        res.json(leads);
-    } catch (err) {
-        console.error('Get Broker Leads Error:', err);
         res.status(500).json({ msg: err.message });
     }
 });
 
 module.exports = router;
-
-// Get all broker properties
-router.get('/properties', auth, async (req, res) => {
-    try {
-        const user = await User.findById(req.user.id);
-
-        if (user.role !== 'owner') {
-            return res.status(403).json({ msg: 'Only owners/brokers can access this' });
-        }
-
-        const properties = await Property.find({ owner: req.user.id })
-            .sort({ createdAt: -1 })
-            .populate('likes', 'name phoneNumber');
-
-        res.json(properties);
-    } catch (err) {
-        console.error('Get Broker Properties Error:', err);
-        res.status(500).json({ msg: err.message });
-    }
-});
-
-// Get all broker leads
-router.get('/leads', auth, async (req, res) => {
-    try {
-        const user = await User.findById(req.user.id);
-
-        if (user.role !== 'owner') {
-            return res.status(403).json({ msg: 'Only owners/brokers can access this' });
-        }
-
-        const { status, priority } = req.query;
-
-        let query = { owner: req.user.id };
-
-        if (status) {
-            query.status = status;
-        }
-
-        if (priority) {
-            query.priority = priority;
-        }
-
-        const leads = await Lead.find(query)
-            .populate('tenant', 'name phoneNumber profileImage')
-            .populate('property', 'title images price type city area')
-            .sort({ createdAt: -1 });
-
-        res.json(leads);
-    } catch (err) {
-        console.error('Get Broker Leads Error:', err);
-        res.status(500).json({ msg: err.message });
-    }
-});
-

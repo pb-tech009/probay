@@ -609,4 +609,75 @@ router.get('/featured', async (req, res) => {
     }
 });
 
+// Get Property by ID
+router.get('/:id', async (req, res) => {
+    try {
+        const property = await Property.findById(req.params.id)
+            .populate('owner', 'name phoneNumber profileImage avgResponseTime trustScore')
+            .populate('likes', 'name phoneNumber');
+
+        if (!property) {
+            return res.status(404).json({ msg: 'Property not found' });
+        }
+
+        res.json(property);
+    } catch (err) {
+        console.error('Get Property Error:', err);
+        res.status(500).json({ msg: err.message });
+    }
+});
+
+// Update Property
+router.put('/update/:id', auth, async (req, res) => {
+    try {
+        const property = await Property.findById(req.params.id);
+
+        if (!property) {
+            return res.status(404).json({ msg: 'Property not found' });
+        }
+
+        // Check if user is the owner
+        if (property.owner.toString() !== req.user.id) {
+            return res.status(403).json({ msg: 'Not authorized to update this property' });
+        }
+
+        const { title, price, description, address } = req.body;
+
+        if (title) property.title = title;
+        if (price) property.price = Number(price);
+        if (description) property.description = description;
+        if (address) property.address = address;
+
+        await property.save();
+
+        res.json(property);
+    } catch (err) {
+        console.error('Update Property Error:', err);
+        res.status(500).json({ msg: err.message });
+    }
+});
+
+// Delete Property
+router.delete('/delete/:id', auth, async (req, res) => {
+    try {
+        const property = await Property.findById(req.params.id);
+
+        if (!property) {
+            return res.status(404).json({ msg: 'Property not found' });
+        }
+
+        // Check if user is the owner
+        if (property.owner.toString() !== req.user.id) {
+            return res.status(403).json({ msg: 'Not authorized to delete this property' });
+        }
+
+        await Property.findByIdAndDelete(req.params.id);
+
+        res.json({ msg: 'Property deleted successfully' });
+    } catch (err) {
+        console.error('Delete Property Error:', err);
+        res.status(500).json({ msg: err.message });
+    }
+});
+
 module.exports = router;

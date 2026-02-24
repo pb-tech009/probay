@@ -1,6 +1,7 @@
 import React, { memo } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import OptimizedImage from './OptimizedImage';
+import { getImageUrl } from '@/constants/api';
 
 interface Property {
   _id: string;
@@ -27,6 +28,10 @@ interface PropertyCardProps {
  */
 const PropertyCard: React.FC<PropertyCardProps> = memo(
   ({ property, onPress }) => {
+    const imageUri = property.images && property.images.length > 0 
+      ? getImageUrl(property.images[0])
+      : 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?q=80&w=600&auto=format&fit=crop';
+
     return (
       <TouchableOpacity
         style={styles.card}
@@ -34,7 +39,7 @@ const PropertyCard: React.FC<PropertyCardProps> = memo(
         activeOpacity={0.7}
       >
         <OptimizedImage
-          source={{ uri: property.images[0] }}
+          source={{ uri: imageUri }}
           style={styles.image}
           contentFit="cover"
           priority="normal"

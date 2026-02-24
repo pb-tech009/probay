@@ -10,9 +10,9 @@ const rateLimit = require('express-rate-limit');
 
 // Rate limiting for OTP requests to prevent SMS bombing
 const otpLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 5, // Limit each IP to 5 OTP requests per window
-    message: { msg: 'Too many OTP requests from this IP, please try again after 15 minutes' }
+    windowMs: 5 * 60 * 1000, // 5 minutes
+    max: 20, // Limit each IP to 20 OTP requests per window (increased for testing)
+    message: { msg: 'Too many OTP requests from this IP, please try again after 5 minutes' }
 });
 
 // Request OTP
@@ -39,7 +39,7 @@ router.post('/request-otp', otpLimiter, async (req, res) => {
 
         // Fixed OTP for Testing Numbers
         let otp = Math.floor(1000 + Math.random() * 9000).toString();
-        const testNumbers = ['9054187387', '7435956074'];
+        const testNumbers = ['9054187387', '7435956074', '9876543210', '8888888888', '9999999999', '7777777777', '6666666666'];
 
         if (testNumbers.includes(phoneNumber)) {
             otp = '1111';
@@ -55,7 +55,16 @@ router.post('/request-otp', otpLimiter, async (req, res) => {
         // Send actual SMS if not a test number
         if (!testNumbers.includes(phoneNumber)) {
             const message = `Your PropBay verification code is: ${otp}. Do not share it with anyone.`;
-            await sendSMS(phoneNumber, message);
+            console.log(`📱 Sending SMS to ${phoneNumber} with OTP: ${otp}`);
+            try {
+                const smsResponse = await sendSMS(phoneNumber, message);
+                console.log('✅ SMS sent successfully:', smsResponse);
+            } catch (smsError) {
+                console.error('❌ SMS sending failed:', smsError);
+                // Continue anyway - OTP is saved in DB
+            }
+        } else {
+            console.log(`🧪 Test number ${phoneNumber} - OTP: ${otp} (SMS not sent)`);
         }
 
         res.json({ msg: 'OTP sent successfully', isTest: testNumbers.includes(phoneNumber) });
@@ -93,7 +102,7 @@ router.post('/verify-otp', async (req, res) => {
             await user.save();
         }
 
-        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '90d' });
         res.json({ token, user });
     } catch (err) {
         res.status(500).json({ msg: err.message });
@@ -170,3 +179,22 @@ router.post('/save-property/:id', auth, async (req, res) => {
 });
 
 module.exports = router;
+
+// Update FCM Token
+router.post('/update-fcm-token', auth, async (req, res) => {
+    try {
+        const { fcmToken } = req.body;
+
+        if (!fcmToken) {
+            return res.status(400).json({ msg: 'FCM token is required' });
+        }
+
+        await User.findByIdAndUpdate(req.user.id, { fcmToken });
+        
+        console.log(`✅ FCM token updated for user: ${req.user.id}`);
+        res.json({ msg: 'FCM token updated successfully' });
+    } catch (err) {
+        console.error('Update FCM token error:', err);
+        res.status(500).json({ msg: err.message });
+    }
+});

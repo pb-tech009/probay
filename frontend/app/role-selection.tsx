@@ -31,7 +31,7 @@ export default function RoleSelectionScreen() {
     try {
       const updatedUser = await authAPI.selectRole(userId, selectedRole);
       setUser(updatedUser);
-      router.replace('/(tabs)/home');
+      router.replace('/tabs/home' as any);
     } catch (error: any) {
       Alert.alert('Error', error.message || 'Failed to select role');
     } finally {

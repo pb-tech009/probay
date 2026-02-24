@@ -32,13 +32,25 @@ export default function SettingsScreen() {
     
     switch (label) {
       case 'Privacy Policy':
-        // Navigate to privacy policy
+        Alert.alert(
+          'Privacy Policy',
+          'This application is a mediator platform connecting property owners and tenants. We are not responsible for any disputes, issues, or transactions between parties. Users are advised to verify all information independently.',
+          [{ text: 'OK' }]
+        );
         break;
       case 'Terms of Service':
-        // Navigate to terms
+        Alert.alert(
+          'Terms of Service',
+          'By using this application, you agree that this is a mediator service only. All transactions and agreements are between property owners and tenants directly.',
+          [{ text: 'OK' }]
+        );
         break;
       case 'Help & Support':
-        // Navigate to help
+        Alert.alert(
+          'Help & Support',
+          'Contact us:\n\n📞 9054187387\n📞 9173757240\n\nWe are here to help you!',
+          [{ text: 'OK' }]
+        );
         break;
       case 'About':
         Alert.alert('PropBay', 'Version 1.0.0\nBuilt with React Native');
@@ -70,36 +82,11 @@ export default function SettingsScreen() {
       title: 'Appearance',
       items: [
         {
-          icon: <Moon size={20} color={Colors.purple} />,
-          label: 'Dark Mode',
-          type: 'switch' as const,
-          value: darkMode,
-          onToggle: () => handleToggle(setDarkMode, darkMode),
-        },
-        {
           icon: <Globe size={20} color={Colors.green} />,
           label: 'Language',
           type: 'menu' as const,
           value: 'English',
           onPress: () => handleMenuPress('Language'),
-        },
-      ],
-    },
-    {
-      title: 'Privacy & Security',
-      items: [
-        {
-          icon: <Shield size={20} color={Colors.green} />,
-          label: 'Privacy Settings',
-          type: 'menu' as const,
-          onPress: () => handleMenuPress('Privacy Settings'),
-        },
-        {
-          icon: <Eye size={20} color={Colors.textSecondary} />,
-          label: 'Profile Visibility',
-          type: 'menu' as const,
-          value: 'Public',
-          onPress: () => handleMenuPress('Profile Visibility'),
         },
       ],
     },

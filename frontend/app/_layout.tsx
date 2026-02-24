@@ -1,14 +1,40 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Stack } from "expo-router";
+import { Stack, useRouter } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import React, { useEffect } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { AuthProvider } from "@/providers/AuthProvider";
+import { Alert } from "react-native";
+import { AuthProvider, useAuth } from "@/providers/AuthProvider";
 import Colors from "@/constants/colors";
 
 SplashScreen.preventAutoHideAsync();
 
-const queryClient = new QueryClient();
+// Create query client with global error handler
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: (failureCount, error: any) => {
+        // Don't retry on token expiry
+        if (error?.message === 'TOKEN_EXPIRED') {
+          return false;
+        }
+        return failureCount < 2;
+      },
+      onError: (error: any) => {
+        if (error?.message === 'TOKEN_EXPIRED') {
+          console.log('Token expired detected in query');
+        }
+      },
+    },
+    mutations: {
+      onError: (error: any) => {
+        if (error?.message === 'TOKEN_EXPIRED') {
+          console.log('Token expired detected in mutation');
+        }
+      },
+    },
+  },
+});
 
 function RootLayoutNav() {
   return (

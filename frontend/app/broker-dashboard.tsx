@@ -12,6 +12,7 @@ import {
   Zap, AlertCircle, XCircle, Crown, Star,
 } from 'lucide-react-native';
 import Colors from '@/constants/colors';
+import { getImageUrl } from '@/constants/api';
 import { useAuth } from '@/providers/AuthProvider';
 import { brokerAPI } from '@/services/api';
 
@@ -142,7 +143,10 @@ export default function BrokerDashboardScreen() {
 
         {/* Quick Stats Grid */}
         <View style={styles.statsGrid}>
-          <View style={styles.statCard}>
+          <Pressable 
+            style={styles.statCard}
+            onPress={() => router.push('/lead-management?filter=active' as any)}
+          >
             <View style={styles.statHeader}>
               <Home size={20} color={Colors.green} />
               <View style={styles.statTrend}>
@@ -153,9 +157,12 @@ export default function BrokerDashboardScreen() {
               {data?.properties.active || 0}
             </Text>
             <Text style={styles.statLabel}>Active Properties</Text>
-          </View>
+          </Pressable>
 
-          <View style={styles.statCard}>
+          <Pressable 
+            style={styles.statCard}
+            onPress={() => router.push('/lead-management?filter=hot' as any)}
+          >
             <View style={styles.statHeader}>
               <Flame size={20} color={Colors.orange} />
               <View style={styles.statTrend}>
@@ -166,9 +173,12 @@ export default function BrokerDashboardScreen() {
               {data?.leads.hot || 0}
             </Text>
             <Text style={styles.statLabel}>Hot Leads</Text>
-          </View>
+          </Pressable>
 
-          <View style={styles.statCard}>
+          <Pressable 
+            style={styles.statCard}
+            onPress={() => router.push('/lead-management?filter=new' as any)}
+          >
             <View style={styles.statHeader}>
               <Bell size={20} color={Colors.blue} />
               <View style={styles.statTrend}>
@@ -179,9 +189,12 @@ export default function BrokerDashboardScreen() {
               {data?.leads.new || 0}
             </Text>
             <Text style={styles.statLabel}>New Leads</Text>
-          </View>
+          </Pressable>
 
-          <View style={styles.statCard}>
+          <Pressable 
+            style={styles.statCard}
+            onPress={() => router.push('/lead-management?filter=closed' as any)}
+          >
             <View style={styles.statHeader}>
               <CheckCircle size={20} color={Colors.gold} />
               <View style={styles.statTrend}>
@@ -192,7 +205,7 @@ export default function BrokerDashboardScreen() {
               {data?.leads.closed || 0}
             </Text>
             <Text style={styles.statLabel}>Closed Deals</Text>
-          </View>
+          </Pressable>
         </View>
 
         {/* Properties Overview */}

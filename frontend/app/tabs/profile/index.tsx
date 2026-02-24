@@ -6,17 +6,26 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
+import { useQuery } from '@tanstack/react-query';
 import {
   Home, Heart, Users, MessageCircle, Settings,
-  LogOut, ChevronRight, Crown, Star, Shield,
+  LogOut, ChevronRight, Crown, Star, Shield, Bell,
 } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import Colors from '@/constants/colors';
 import { useAuth } from '@/providers/AuthProvider';
+import { notificationAPI } from '@/services/api';
 
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
-  const { user, logout } = useAuth();
+  const { user, logout, token } = useAuth();
+
+  const { data: unreadCount } = useQuery({
+    queryKey: ['unread-count', token],
+    queryFn: () => notificationAPI.getUnreadCount(token!),
+    enabled: !!token,
+    refetchInterval: 30000, // Refresh every 30 seconds
+  });
 
   const handleLogout = useCallback(() => {
     Alert.alert('Logout', 'Are you sure you want to logout?', [
@@ -40,13 +49,10 @@ export default function ProfileScreen() {
     
     switch (label) {
       case 'My Properties':
+        router.push('/lead-management?filter=all' as any);
+        break;
+      case 'Dashboard':
         router.push('/broker-dashboard' as any);
-        break;
-      case 'Liked Properties':
-        router.push('/liked-properties' as any);
-        break;
-      case 'People I Follow':
-        router.push('/people-follow' as any);
         break;
       case 'Verification':
         // Navigate to verification
@@ -59,14 +65,33 @@ export default function ProfileScreen() {
 
   const menuItems = [
     { icon: <Home size={20} color={Colors.gold} />, label: 'My Properties', show: isOwner, onPress: () => handleMenuPress('My Properties') },
-    { icon: <Heart size={20} color={Colors.red} />, label: 'Liked Properties', show: true, onPress: () => handleMenuPress('Liked Properties') },
-    { icon: <Users size={20} color={Colors.blue} />, label: 'People I Follow', show: true, onPress: () => handleMenuPress('People I Follow') },
+    { icon: <Crown size={20} color={Colors.gold} />, label: 'Dashboard', show: isOwner, onPress: () => handleMenuPress('Dashboard') },
     { icon: <Shield size={20} color={Colors.green} />, label: 'Verification', show: isOwner, onPress: () => handleMenuPress('Verification') },
     { icon: <Settings size={20} color={Colors.textSecondary} />, label: 'Settings', show: true, onPress: () => handleMenuPress('Settings') },
   ].filter(item => item.show);
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
+      {/* Notification Bell */}
+      <View style={styles.topBar}>
+        <Pressable 
+          style={styles.notificationButton}
+          onPress={() => {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            router.push('/notifications' as any);
+          }}
+        >
+          <Bell size={22} color={Colors.textPrimary} />
+          {unreadCount && unreadCount.count > 0 && (
+            <View style={styles.badge}>
+              <Text style={styles.badgeText}>
+                {unreadCount.count > 9 ? '9+' : unreadCount.count}
+              </Text>
+            </View>
+          )}
+        </Pressable>
+      </View>
+
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         <View style={styles.profileHeader}>
           <View style={styles.avatarContainer}>
@@ -83,6 +108,13 @@ export default function ProfileScreen() {
           </View>
 
           <Text style={styles.name}>{user?.name || 'User'}</Text>
+          
+          <Pressable 
+            style={styles.editButton}
+            onPress={() => router.push('/edit-profile' as any)}
+          >
+            <Text style={styles.editButtonText}>Edit Profile</Text>
+          </Pressable>
 
           <View style={styles.roleBadge}>
             <LinearGradient
@@ -105,7 +137,8 @@ export default function ProfileScreen() {
           </Text>
         </View>
 
-        <View style={styles.statsRow}>
+        {/* Stats Row - Hidden as per requirement */}
+        {/* <View style={styles.statsRow}>
           <View style={styles.statItem}>
             <Text style={styles.statValue}>{user?.followers?.length || 0}</Text>
             <Text style={styles.statLabel}>Followers</Text>
@@ -120,7 +153,7 @@ export default function ProfileScreen() {
             <Text style={styles.statValue}>{user?.savedProperties?.length || 0}</Text>
             <Text style={styles.statLabel}>Saved</Text>
           </View>
-        </View>
+        </View> */}
 
         {user?.trustScore !== undefined && user.trustScore > 0 && (
           <View style={styles.trustCard}>
@@ -161,6 +194,39 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.background,
   },
+  topBar: {
+    flexDirection: 'row' as const,
+    justifyContent: 'flex-end',
+    paddingHorizontal: 20,
+    paddingVertical: 8,
+  },
+  notificationButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: Colors.card,
+    alignItems: 'center' as const,
+    justifyContent: 'center' as const,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  badge: {
+    position: 'absolute' as const,
+    top: 6,
+    right: 6,
+    backgroundColor: Colors.red,
+    borderRadius: 10,
+    minWidth: 18,
+    height: 18,
+    alignItems: 'center' as const,
+    justifyContent: 'center' as const,
+    paddingHorizontal: 4,
+  },
+  badgeText: {
+    color: '#fff',
+    fontSize: 10,
+    fontWeight: '700' as const,
+  },
   scrollContent: {
     paddingBottom: 40,
   },
@@ -187,6 +253,20 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: '700' as const,
     color: Colors.textPrimary,
+  },
+  editButton: {
+    marginTop: 12,
+    paddingHorizontal: 20,
+    paddingVertical: 8,
+    backgroundColor: Colors.goldMuted,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: Colors.gold,
+  },
+  editButtonText: {
+    color: Colors.gold,
+    fontSize: 13,
+    fontWeight: '700' as const,
   },
   roleBadge: {
     marginTop: 8,

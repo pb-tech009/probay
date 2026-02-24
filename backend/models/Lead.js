@@ -96,7 +96,7 @@ const leadSchema = new mongoose.Schema({
 });
 
 // Auto-calculate priority based on move-in date
-leadSchema.pre('save', function(next) {
+leadSchema.pre('save', async function() {
     if (this.moveInDate) {
         const daysUntilMoveIn = Math.ceil((this.moveInDate - new Date()) / (1000 * 60 * 60 * 24));
         
@@ -110,7 +110,6 @@ leadSchema.pre('save', function(next) {
     }
     
     this.updatedAt = new Date();
-    next();
 });
 
 // Indexes

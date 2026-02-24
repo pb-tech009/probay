@@ -22,6 +22,14 @@ async function apiRequest<T>(
     headers,
   });
 
+  // Check for token expiry (401 Unauthorized)
+  if (response.status === 401) {
+    console.log('[API] Token expired - logging out');
+    // Token expired - trigger logout
+    // This will be caught by the calling component
+    throw new Error('TOKEN_EXPIRED');
+  }
+
   const data = await response.json();
 
   if (!response.ok) {
@@ -173,6 +181,12 @@ export const brokerAPI = {
       method: 'PUT',
       body: JSON.stringify(data),
     }, token),
+
+  getMyProperties: (token: string) =>
+    apiRequest('/broker/my-properties', {}, token),
+
+  getMyLeads: (token: string) =>
+    apiRequest('/leads/broker/my-leads', {}, token),
 };
 
 export const leadAPI = {
@@ -184,14 +198,14 @@ export const leadAPI = {
     jobType: 'student' | 'working' | 'business' | 'other';
     tenantNotes?: string;
   }) =>
-    apiRequest('/lead/create', {
+    apiRequest('/leads/create', {
       method: 'POST',
       body: JSON.stringify(data),
     }, token),
 
   checkLeadStatus: (token: string, propertyId: string) =>
-    apiRequest<{ hasLead: boolean; lead?: any }>(`/lead/check-status/${propertyId}`, {}, token),
+    apiRequest<{ hasLead: boolean; lead?: any }>(`/leads/check-status/${propertyId}`, {}, token),
 
   getMyInterests: (token: string, page = 1, limit = 20) =>
-    apiRequest(`/lead/tenant/my-interests?page=${page}&limit=${limit}`, {}, token),
+    apiRequest(`/leads/tenant/my-interests?page=${page}&limit=${limit}`, {}, token),
 };

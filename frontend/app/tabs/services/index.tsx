@@ -105,9 +105,9 @@ export default function ServicesScreen() {
     } else {
       // ELITE MEMBER → Navigate to Explore tab with filter
       router.push({
-        pathname: '/(tabs)/explore',
+        pathname: '/tabs/explore',
         params: { filterType: propertyType },
-      });
+      } as any);
     }
   }, [isProPartner]);
 

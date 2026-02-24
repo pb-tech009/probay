@@ -23,6 +23,13 @@ export default function HomeScreen() {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const heroScale = useRef(new Animated.Value(0.95)).current;
 
+  // Check if user needs to select role
+  useEffect(() => {
+    if (user && user.role === 'none') {
+      router.replace({ pathname: '/role-selection' as any, params: { userId: user._id } });
+    }
+  }, [user]);
+
   const { data: featuredData } = useQuery({
     queryKey: ['featured-properties'],
     queryFn: () => propertyAPI.getFeatured(),
@@ -161,11 +168,14 @@ export default function HomeScreen() {
         </Animated.View>
 
         <Animated.View style={[styles.quickActions, { opacity: fadeAnim }]}>
-          <Pressable style={styles.quickCard} onPress={() => router.push('/(tabs)/explore' as any)}>
-            <Building size={24} color={Colors.gold} />
-            <Text style={styles.quickLabel}>POST LUXURY{'\n'}LISTING</Text>
-          </Pressable>
-          <Pressable style={styles.quickCard} onPress={() => router.push('/(tabs)/explore' as any)}>
+          {/* Post Luxury Listing - Only for Pro Partner */}
+          {user?.role === 'owner' && (
+            <Pressable style={styles.quickCard} onPress={() => router.push('/create-property' as any)}>
+              <Building size={24} color={Colors.gold} />
+              <Text style={styles.quickLabel}>POST LUXURY{'\n'}LISTING</Text>
+            </Pressable>
+          )}
+          <Pressable style={[styles.quickCard, user?.role !== 'owner' && styles.quickCardFull]} onPress={() => router.push('/(tabs)/explore' as any)}>
             <BedDouble size={24} color={Colors.gold} />
             <Text style={styles.quickLabel}>PREMIUM{'\n'}STAYS</Text>
           </Pressable>
@@ -327,6 +337,10 @@ const styles = StyleSheet.create({
     borderColor: Colors.border,
     height: 120,
     justifyContent: 'space-between',
+  },
+  quickCardFull: {
+    flex: 1,
+    width: '100%',
   },
   quickLabel: {
     color: Colors.textPrimary,
