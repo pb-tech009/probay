@@ -1,6 +1,7 @@
 {
   "cli": {
-    "version": ">= 5.0.0"
+    "version": ">= 5.0.0",
+    "packageManager": "npm"
   },
   "build": {
     "development": {
@@ -9,20 +10,29 @@
       "android": {
         "gradleCommand": ":app:assembleDebug"
       },
-      "node": "20.11.1"
+      "node": "20.11.1",
+      "env": {
+        "NODE_ENV": "development"
+      }
     },
     "preview": {
       "distribution": "internal",
       "android": {
         "buildType": "apk"
       },
-      "node": "20.11.1"
+      "node": "20.11.1",
+      "env": {
+        "NODE_ENV": "production"
+      }
     },
     "production": {
       "android": {
         "buildType": "app-bundle"
       },
-      "node": "20.11.1"
+      "node": "20.11.1",
+      "env": {
+        "NODE_ENV": "production"
+      }
     }
   },
   "submit": {
