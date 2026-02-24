@@ -1,4 +1,4 @@
-name: Build Android APK
+name: Build Android for Play Store
 
 on:
   workflow_dispatch:
@@ -40,13 +40,47 @@ jobs:
           cd frontend
           npx expo prebuild --platform android --clean
       
-      - name: Build APK
+      - name: Create keystore directory
+        run: mkdir -p frontend/android/app
+      
+      - name: Decode keystore
+        run: |
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > frontend/android/app/release.keystore
+      
+      - name: Build AAB (Play Store)
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
           cd frontend/android
-          ./gradlew assembleRelease
+          ./gradlew bundleRelease \
+            -Pandroid.injected.signing.store.file=app/release.keystore \
+            -Pandroid.injected.signing.store.password=$KEYSTORE_PASSWORD \
+            -Pandroid.injected.signing.key.alias=$KEY_ALIAS \
+            -Pandroid.injected.signing.key.password=$KEY_PASSWORD
       
-      - name: Upload APK
+      - name: Build APK (Testing)
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          cd frontend/android
+          ./gradlew assembleRelease \
+            -Pandroid.injected.signing.store.file=app/release.keystore \
+            -Pandroid.injected.signing.store.password=$KEYSTORE_PASSWORD \
+            -Pandroid.injected.signing.key.alias=$KEY_ALIAS \
+            -Pandroid.injected.signing.key.password=$KEY_PASSWORD
+      
+      - name: Upload AAB (Play Store)
         uses: actions/upload-artifact@v3
         with:
-          name: propbay-app
+          name: propbay-playstore-aab
+          path: frontend/android/app/build/outputs/bundle/release/app-release.aab
+      
+      - name: Upload APK (Testing)
+        uses: actions/upload-artifact@v3
+        with:
+          name: propbay-testing-apk
           path: frontend/android/app/build/outputs/apk/release/app-release.apk
