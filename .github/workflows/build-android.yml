@@ -35,6 +35,14 @@ jobs:
           cd frontend
           npm install --force
       
+      - name: Verify icon files
+        run: |
+          cd frontend
+          ls -la assets/images/
+          file assets/images/icon.png
+          file assets/images/adaptive-icon.png
+          file assets/images/splash-icon.png
+      
       - name: Generate Android project
         run: |
           cd frontend
