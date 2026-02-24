@@ -96,13 +96,13 @@ jobs:
           ./gradlew assembleRelease
       
       - name: Upload AAB (Play Store)
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: propbay-playstore-aab
           path: frontend/android/app/build/outputs/bundle/release/app-release.aab
       
       - name: Upload APK (Testing)
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: propbay-testing-apk
           path: frontend/android/app/build/outputs/apk/release/app-release.apk
