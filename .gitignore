@@ -24,6 +24,9 @@ backend/uploads/
 *.mov
 *.avi
 
+# Exception: Allow app icons
+!frontend/assets/images/*.png
+
 # IDE
 .vscode/
 .idea/
