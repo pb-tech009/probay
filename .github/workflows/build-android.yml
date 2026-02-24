@@ -40,38 +40,60 @@ jobs:
           cd frontend
           npx expo prebuild --platform android --clean
       
-      - name: Create keystore directory
-        run: mkdir -p frontend/android/app
-      
-      - name: Decode keystore
+      - name: Setup signing config
         run: |
-          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > frontend/android/app/release.keystore
+          cd frontend/android/app
+          cat > signing.properties << EOF
+          PROPBAY_UPLOAD_STORE_FILE=propbay.keystore
+          PROPBAY_UPLOAD_KEY_ALIAS=propbay
+          PROPBAY_UPLOAD_STORE_PASSWORD=propbay123
+          PROPBAY_UPLOAD_KEY_PASSWORD=propbay123
+          EOF
+      
+      - name: Generate keystore
+        run: |
+          cd frontend/android/app
+          keytool -genkeypair -v -storetype PKCS12 \
+            -keystore propbay.keystore \
+            -alias propbay \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000 \
+            -storepass propbay123 \
+            -keypass propbay123 \
+            -dname "CN=PropBay, OU=Development, O=PropBay, L=Ahmedabad, ST=Gujarat, C=IN"
+      
+      - name: Update build.gradle for signing
+        run: |
+          cd frontend/android/app
+          cat >> build.gradle << 'EOF'
+          
+          android {
+              signingConfigs {
+                  release {
+                      storeFile file('propbay.keystore')
+                      storePassword 'propbay123'
+                      keyAlias 'propbay'
+                      keyPassword 'propbay123'
+                  }
+              }
+              buildTypes {
+                  release {
+                      signingConfig signingConfigs.release
+                  }
+              }
+          }
+          EOF
       
       - name: Build AAB (Play Store)
-        env:
-          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
           cd frontend/android
-          ./gradlew bundleRelease \
-            -Pandroid.injected.signing.store.file=app/release.keystore \
-            -Pandroid.injected.signing.store.password=$KEYSTORE_PASSWORD \
-            -Pandroid.injected.signing.key.alias=$KEY_ALIAS \
-            -Pandroid.injected.signing.key.password=$KEY_PASSWORD
+          ./gradlew bundleRelease
       
       - name: Build APK (Testing)
-        env:
-          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
           cd frontend/android
-          ./gradlew assembleRelease \
-            -Pandroid.injected.signing.store.file=app/release.keystore \
-            -Pandroid.injected.signing.store.password=$KEYSTORE_PASSWORD \
-            -Pandroid.injected.signing.key.alias=$KEY_ALIAS \
-            -Pandroid.injected.signing.key.password=$KEY_PASSWORD
+          ./gradlew assembleRelease
       
       - name: Upload AAB (Play Store)
         uses: actions/upload-artifact@v3
