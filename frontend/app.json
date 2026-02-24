@@ -38,6 +38,13 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "045dfa5e-2a30-4cf1-b282-76e5bb5f35aa"
+      }
+    },
+    "owner": "propbays-organization"
   }
 }

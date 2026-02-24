@@ -8,18 +8,21 @@
       "distribution": "internal",
       "android": {
         "gradleCommand": ":app:assembleDebug"
-      }
+      },
+      "node": "20.11.1"
     },
     "preview": {
       "distribution": "internal",
       "android": {
         "buildType": "apk"
-      }
+      },
+      "node": "20.11.1"
     },
     "production": {
       "android": {
-        "buildType": "aab"
-      }
+        "buildType": "app-bundle"
+      },
+      "node": "20.11.1"
     }
   },
   "submit": {
