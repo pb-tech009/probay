@@ -1,59 +1,40 @@
 {
   "expo": {
-    "name": "Premium Property Booking",
-    "slug": "premium-property-booking",
+    "name": "PropBay",
+    "slug": "propbay",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "rork-app",
-    "userInterfaceStyle": "automatic",
+    "scheme": "propbay",
+    "userInterfaceStyle": "dark",
     "newArchEnabled": true,
     "jsEngine": "hermes",
     "splash": {
       "image": "./assets/images/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
-    },
-    "ios": {
-      "supportsTablet": false,
-      "bundleIdentifier": "app.rork.premium-property-booking"
+      "backgroundColor": "#0A0A0A"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#0A0A0A"
       },
-      "package": "app.rork.premium_property_booking",
+      "package": "com.propbay.app",
+      "versionCode": 1,
       "enableProguard": true,
       "enableShrinkResources": true,
-      "googleServicesFile": "./google-services.json",
       "permissions": [
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE",
         "RECEIVE_BOOT_COMPLETED",
         "VIBRATE",
         "WAKE_LOCK"
       ]
     },
-    "web": {
-      "favicon": "./assets/images/favicon.png"
-    },
     "plugins": [
-      [
-        "expo-router",
-        {
-          "origin": "https://rork.com/"
-        }
-      ],
-      "expo-font",
-      "expo-web-browser",
-      [
-        "expo-notifications",
-        {
-          "icon": "./assets/images/notification-icon.png",
-          "color": "#D4AF37",
-          "sounds": ["./assets/sounds/notification.wav"],
-          "mode": "production"
-        }
-      ]
+      "expo-router",
+      "expo-font"
     ],
     "experiments": {
       "typedRoutes": true
