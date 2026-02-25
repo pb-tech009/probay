@@ -43,13 +43,23 @@ jobs:
           
           # Deploy Backend
           ssh -i ~/.ssh/ec2_key.pem $EC2_USER@$EC2_HOST << 'EOF'
-            cd /home/ubuntu/probay
+            cd /home/ubuntu/propbay
             git pull origin main
+            
+            # Install FFmpeg if not already installed
+            if ! command -v ffmpeg &> /dev/null; then
+              echo "📦 Installing FFmpeg..."
+              sudo apt update
+              sudo apt install -y ffmpeg
+              echo "✅ FFmpeg installed!"
+            else
+              echo "✅ FFmpeg already installed"
+            fi
             
             # Backend deployment
             cd backend
             npm install
-            pm2 restart backend || pm2 start index.js --name backend
+            pm2 restart propbay-backend || pm2 start index.js --name propbay-backend
             
             echo "✅ Deployment completed successfully!"
           EOF
