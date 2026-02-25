@@ -25,7 +25,10 @@ const storage = multer.diskStorage({
 
 const upload = multer({
     storage,
-    limits: { fileSize: 50 * 1024 * 1024 }, // 50MB limit for videos
+    limits: { 
+        fileSize: 50 * 1024 * 1024, // 50MB limit for videos
+        fieldSize: 10 * 1024 * 1024 // 10MB for other fields
+    },
     fileFilter: (req, file, cb) => {
         const filetypes = /jpeg|jpg|png|webp|mp4|mov|avi|wmv/;
         const mimetype = filetypes.test(file.mimetype);
@@ -33,7 +36,7 @@ const upload = multer({
         if (mimetype && extname) {
             return cb(null, true);
         }
-        cb(new Error("Error: File upload only supports images and videos"));
+        cb(new Error("Error: File upload only supports images and videos (max 15 seconds)"));
     }
 });
 
@@ -75,7 +78,7 @@ router.post('/create', [
         // Compress video in background if uploaded
         if (videoUrl && req.files['video']) {
             const videoPath = path.join(__dirname, '..', 'uploads', req.files['video'][0].filename);
-            console.log('🎬 Video uploaded, starting background compression...');
+            console.log('🎬 Video uploaded (max 15 sec), starting background compression...');
             compressVideoAsync(videoPath, (err, compressedPath) => {
                 if (!err) {
                     console.log('✅ Video compression completed:', compressedPath);
@@ -180,7 +183,7 @@ router.post('/create-force', [
         // Compress video in background if uploaded (force-create)
         if (videoUrl && req.files['video']) {
             const videoPath = path.join(__dirname, '..', 'uploads', req.files['video'][0].filename);
-            console.log('🎬 Video uploaded (force-create), starting background compression...');
+            console.log('🎬 Video uploaded (force-create, max 15 sec), starting background compression...');
             compressVideoAsync(videoPath, (err, compressedPath) => {
                 if (!err) {
                     console.log('✅ Video compression completed:', compressedPath);

@@ -1,14 +1,22 @@
 # 🎬 Video Upload Feature - Implementation Guide
 
 ## Overview
-Pro Partners can now upload 30-second property videos. Videos are automatically compressed on the backend to maintain app performance while providing rich media content to Elite Members.
+Pro Partners can now upload 15-second property videos. Videos are automatically compressed on the backend to maintain app performance while providing rich media content to Elite Members.
+
+**Key Features:**
+- ✅ 15-second video limit (optimal for quick property preview)
+- ✅ Auto-trim warning for longer videos
+- ✅ Backend compression (720p, 30fps)
+- ✅ Fast upload (10-15 seconds on 4G)
+- ✅ Trust Score +10 points
 
 ---
 
 ## ✅ What's Implemented
 
 ### 1. Frontend (React Native)
-- ✅ Video upload in `post-property.tsx` (already working)
+- ✅ Video upload with 15-second limit
+- ✅ Auto-trim warning for longer videos
 - ✅ Video player in `property-detail.tsx` (auto-play, muted by default)
 - ✅ Video badge on property cards (home screen)
 - ✅ Play/Pause controls
@@ -18,7 +26,7 @@ Pro Partners can now upload 30-second property videos. Videos are automatically 
 **App Size Impact**: +2MB only (expo-av library)
 
 ### 2. Backend (Node.js + Express)
-- ✅ Video upload endpoint (already working)
+- ✅ Video upload endpoint (15-second limit)
 - ✅ Automatic background compression using FFmpeg
 - ✅ 720p resolution, 30fps, optimized for mobile
 - ✅ Compression reduces file size by 70-90%
@@ -28,6 +36,49 @@ Pro Partners can now upload 30-second property videos. Videos are automatically 
 - ✅ Video upload = +10 Trust Score points
 - ✅ Properties with videos get higher ranking
 - ✅ Featured in search results
+
+---
+
+## 📱 User Experience
+
+### Pro Partner - Video Upload:
+
+**Scenario 1: Video ≤ 15 seconds**
+```
+1. Select video (10 seconds)
+2. Upload directly
+3. Upload time: 5-10 seconds
+4. Property goes live
+5. Trust Score +10
+```
+
+**Scenario 2: Video > 15 seconds**
+```
+1. Select video (40 seconds)
+2. Warning appears:
+   "⚠️ Video Too Long
+    Your video: 40 seconds
+    Maximum: 15 seconds
+    
+    We'll use first 15 seconds automatically."
+3. User clicks "OK, Continue"
+4. First 15 seconds uploaded
+5. Upload time: 10-15 seconds
+6. Property goes live
+7. Trust Score +10
+```
+
+### Elite Member - Video Viewing:
+
+```
+1. Browse properties on home screen
+2. See "🎥 VIDEO" badge on properties
+3. Click property to view details
+4. Video auto-plays (muted)
+5. Tap center to play/pause
+6. Tap speaker to unmute
+7. Smooth playback, no buffering
+```
 
 ---
 

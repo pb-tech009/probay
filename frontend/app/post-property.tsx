@@ -86,11 +86,37 @@ export default function PostPropertyScreen() {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Videos,
       quality: 0.7,
+      videoMaxDuration: 15, // Limit to 15 seconds
     });
 
     if (!result.canceled) {
-      setVideo(result.assets[0].uri);
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      const selectedVideo = result.assets[0];
+      
+      // Check video duration
+      if (selectedVideo.duration && selectedVideo.duration > 15000) {
+        // Duration in milliseconds, 15000ms = 15 seconds
+        Alert.alert(
+          '⚠️ Video Too Long',
+          `Your video is ${Math.round(selectedVideo.duration / 1000)} seconds.\n\nMaximum allowed: 15 seconds.\n\nWe'll use the first 15 seconds automatically.`,
+          [
+            { 
+              text: 'Cancel', 
+              style: 'cancel',
+              onPress: () => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+            },
+            { 
+              text: 'OK, Continue', 
+              onPress: () => {
+                setVideo(selectedVideo.uri);
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              }
+            }
+          ]
+        );
+      } else {
+        setVideo(selectedVideo.uri);
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      }
     }
   }, []);
 
@@ -416,10 +442,11 @@ export default function PostPropertyScreen() {
           </ScrollView>
 
           <Text style={styles.label}>Video (optional)</Text>
+          <Text style={styles.videoHint}>⚠️ Maximum: 15 seconds. Longer videos will be trimmed automatically.</Text>
           {video ? (
             <View style={styles.videoContainer}>
               <VideoIcon size={40} color={Colors.gold} />
-              <Text style={styles.videoText}>Video selected</Text>
+              <Text style={styles.videoText}>Video selected (max 15 sec)</Text>
               <Pressable onPress={() => setVideo(null)}>
                 <Text style={styles.removeText}>Remove</Text>
               </Pressable>
@@ -427,7 +454,7 @@ export default function PostPropertyScreen() {
           ) : (
             <Pressable style={styles.uploadButton} onPress={pickVideo}>
               <VideoIcon size={20} color={Colors.gold} />
-              <Text style={styles.uploadButtonText}>Upload Video</Text>
+              <Text style={styles.uploadButtonText}>Upload Video (15 sec max)</Text>
             </Pressable>
           )}
         </View>
@@ -711,6 +738,13 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 14,
     color: Colors.textPrimary,
+  },
+  videoHint: {
+    fontSize: 12,
+    color: Colors.orange,
+    marginTop: 4,
+    marginBottom: 8,
+    fontWeight: '500',
   },
   removeText: {
     fontSize: 14,
