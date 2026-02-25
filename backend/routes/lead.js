@@ -7,6 +7,7 @@ const MarketData = require('../models/MarketData');
 const auth = require('../middleware/auth');
 const { body, validationResult } = require('express-validator');
 const { createNotification, NotificationTemplates } = require('../utils/notificationHelper');
+const { updateTrustScore } = require('../utils/trustScore');
 
 // Update market data when deal closes
 const updateMarketData = async (property, lead) => {
@@ -303,6 +304,11 @@ router.put('/update-status/:id', auth, async (req, res) => {
         }
 
         await lead.save();
+
+        // Update Trust Score (async, don't wait)
+        updateTrustScore(req.user.id).catch(err => 
+            console.error('Trust Score Update Error:', err)
+        );
 
         // Send notification to tenant
         const property = await Property.findById(lead.property);

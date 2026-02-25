@@ -4,6 +4,7 @@ const Property = require('../models/Property');
 const Lead = require('../models/Lead');
 const User = require('../models/User');
 const auth = require('../middleware/auth');
+const { updateTrustScore } = require('../utils/trustScore');
 
 // Broker Dashboard Stats
 router.get('/dashboard/stats', auth, async (req, res) => {
@@ -128,7 +129,7 @@ router.get('/dashboard/stats', auth, async (req, res) => {
             },
             revenue: revenueData[0] || { totalRevenue: 0, avgDealValue: 0, totalDeals: 0 },
             recentActivity: recentLeads,
-            trustScore: user.trustScore || 0
+            trustScore: await updateTrustScore(req.user.id) // Calculate and update trust score
         });
     } catch (err) {
         console.error('Broker Dashboard Error:', err);

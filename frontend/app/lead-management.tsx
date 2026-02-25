@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, Pressable, ActivityIndicator, RefreshControl, Alert,
 } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
 import { Stack, router, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useQuery } from '@tanstack/react-query';
@@ -128,15 +129,16 @@ export default function LeadManagementScreen() {
   }
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
+    <View style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
+      <StatusBar style="light" />
 
       {/* Header */}
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
         <Pressable onPress={() => router.back()} style={styles.backButton}>
           <Text style={styles.backText}>←</Text>
         </Pressable>
-        <Text style={styles.title}>Lead Management</Text>
+        <Text style={styles.title}>Leads</Text>
         <View style={styles.backButton} />
       </View>
 
@@ -145,6 +147,7 @@ export default function LeadManagementScreen() {
         horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.filterContainer}
+        style={styles.filterScroll}
       >
         <Pressable
           style={[styles.filterTab, activeFilter === 'all' && styles.filterTabActive]}
@@ -324,6 +327,47 @@ export default function LeadManagementScreen() {
                     {lead.property?.title}
                   </Text>
                 </View>
+                
+                {/* Lead Details */}
+                <View style={styles.leadDetails}>
+                  {lead.budget && (
+                    <View style={styles.leadDetailRow}>
+                      <IndianRupee size={12} color={Colors.gold} />
+                      <Text style={styles.leadDetailLabel}>Budget:</Text>
+                      <Text style={styles.leadDetailValue}>₹{formatPrice(lead.budget)}</Text>
+                    </View>
+                  )}
+                  {lead.moveInDate && (
+                    <View style={styles.leadDetailRow}>
+                      <Calendar size={12} color={Colors.blue} />
+                      <Text style={styles.leadDetailLabel}>Move-in:</Text>
+                      <Text style={styles.leadDetailValue}>
+                        {new Date(lead.moveInDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}
+                      </Text>
+                    </View>
+                  )}
+                  {lead.familyType && (
+                    <View style={styles.leadDetailRow}>
+                      <User size={12} color={Colors.green} />
+                      <Text style={styles.leadDetailLabel}>Type:</Text>
+                      <Text style={styles.leadDetailValue}>{lead.familyType}</Text>
+                    </View>
+                  )}
+                  {lead.jobType && (
+                    <View style={styles.leadDetailRow}>
+                      <Text style={styles.leadDetailLabel}>Job:</Text>
+                      <Text style={styles.leadDetailValue}>{lead.jobType}</Text>
+                    </View>
+                  )}
+                </View>
+                
+                {lead.tenantNotes && (
+                  <View style={styles.leadNotes}>
+                    <Text style={styles.leadNotesLabel}>Message:</Text>
+                    <Text style={styles.leadNotesText} numberOfLines={2}>{lead.tenantNotes}</Text>
+                  </View>
+                )}
+                
                 <View style={styles.leadFooter}>
                   <View style={styles.leadDate}>
                     <Calendar size={12} color={Colors.textDark} />
@@ -366,7 +410,10 @@ const styles = StyleSheet.create({
     alignItems: 'center' as const,
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    paddingVertical: 12,
+    paddingBottom: 12,
+    backgroundColor: Colors.surface,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
   },
   backButton: {
     width: 40,
@@ -381,28 +428,35 @@ const styles = StyleSheet.create({
     color: Colors.textPrimary,
   },
   title: {
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: '700' as const,
     color: Colors.textPrimary,
+    flex: 1,
+    textAlign: 'center' as const,
+  },
+  filterScroll: {
+    maxHeight: 60,
   },
   filterContainer: {
     paddingHorizontal: 20,
-    paddingVertical: 12,
+    paddingVertical: 16,
     paddingRight: 40,
     flexDirection: 'row' as const,
+    alignItems: 'center' as const,
   },
   filterTab: {
     flexDirection: 'row' as const,
     alignItems: 'center' as const,
     gap: 6,
     paddingHorizontal: 16,
-    paddingVertical: 10,
+    paddingVertical: 12,
     borderRadius: 20,
     backgroundColor: Colors.card,
     borderWidth: 1,
     borderColor: Colors.border,
     marginRight: 10,
     flexShrink: 0,
+    minHeight: 40,
   },
   filterTabActive: {
     backgroundColor: Colors.gold,
@@ -595,6 +649,48 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: Colors.textSecondary,
     flex: 1,
+  },
+  leadDetails: {
+    flexDirection: 'row' as const,
+    flexWrap: 'wrap' as const,
+    gap: 8,
+    marginBottom: 10,
+  },
+  leadDetailRow: {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    gap: 4,
+    backgroundColor: Colors.surface,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+  },
+  leadDetailLabel: {
+    fontSize: 11,
+    color: Colors.textDark,
+    fontWeight: '600' as const,
+  },
+  leadDetailValue: {
+    fontSize: 11,
+    color: Colors.textPrimary,
+    fontWeight: '700' as const,
+  },
+  leadNotes: {
+    backgroundColor: Colors.surface,
+    padding: 10,
+    borderRadius: 8,
+    marginBottom: 10,
+  },
+  leadNotesLabel: {
+    fontSize: 10,
+    color: Colors.textDark,
+    fontWeight: '700' as const,
+    marginBottom: 4,
+  },
+  leadNotesText: {
+    fontSize: 12,
+    color: Colors.textSecondary,
+    lineHeight: 16,
   },
   leadFooter: {
     flexDirection: 'row' as const,
