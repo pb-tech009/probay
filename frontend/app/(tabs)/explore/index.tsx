@@ -213,6 +213,33 @@ export default function ExploreScreen() {
             </View>
 
             <ScrollView showsVerticalScrollIndicator={false}>
+              <Text style={styles.filterSectionTitle}>Price Range</Text>
+              <View style={styles.priceInputRow}>
+                <View style={styles.priceInputContainer}>
+                  <Text style={styles.priceLabel}>Min Price</Text>
+                  <TextInput
+                    style={styles.priceInput}
+                    placeholder="₹ 0"
+                    placeholderTextColor={Colors.textDark}
+                    keyboardType="numeric"
+                    value={filters.minPrice || ''}
+                    onChangeText={(text) => setFilters(prev => ({ ...prev, minPrice: text }))}
+                  />
+                </View>
+                <Text style={styles.priceSeparator}>-</Text>
+                <View style={styles.priceInputContainer}>
+                  <Text style={styles.priceLabel}>Max Price</Text>
+                  <TextInput
+                    style={styles.priceInput}
+                    placeholder="₹ Any"
+                    placeholderTextColor={Colors.textDark}
+                    keyboardType="numeric"
+                    value={filters.maxPrice || ''}
+                    onChangeText={(text) => setFilters(prev => ({ ...prev, maxPrice: text }))}
+                  />
+                </View>
+              </View>
+
               <Text style={styles.filterSectionTitle}>Property Type</Text>
               <View style={styles.filterChips}>
                 {PROPERTY_TYPES.map(t => renderFilterChip(t, 'type', t))}
@@ -468,5 +495,36 @@ const styles = StyleSheet.create({
     color: '#000',
     fontWeight: '700' as const,
     fontSize: 15,
+  },
+  priceInputRow: {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    gap: 12,
+    marginBottom: 8,
+  },
+  priceInputContainer: {
+    flex: 1,
+  },
+  priceLabel: {
+    fontSize: 12,
+    color: Colors.textSecondary,
+    marginBottom: 6,
+    fontWeight: '600' as const,
+  },
+  priceInput: {
+    backgroundColor: Colors.card,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    color: Colors.textPrimary,
+    fontSize: 14,
+  },
+  priceSeparator: {
+    fontSize: 18,
+    color: Colors.textSecondary,
+    fontWeight: '600' as const,
+    marginTop: 20,
   },
 });
