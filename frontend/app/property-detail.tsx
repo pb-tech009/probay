@@ -8,10 +8,11 @@ import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Stack, useLocalSearchParams, router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Video as VideoPlayer, ResizeMode, AVPlaybackStatus } from 'expo-av';
 import {
   ChevronLeft, Heart, Share2, MapPin, Bed, Sofa, BadgeCheck,
   Phone, MessageCircle, Calendar, HandCoins, Video,
-  Shield, Droplets, Volume2, Star,
+  Shield, Droplets, Volume2, Star, Play, Pause, Maximize,
 } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import Colors from '@/constants/colors';
@@ -31,6 +32,9 @@ export default function PropertyDetailScreen() {
   const [isLiked, setIsLiked] = useState<boolean>(false);
   const [leadStatus, setLeadStatus] = useState<{ hasLead: boolean; lead?: Lead } | null>(null);
   const [loadingLead, setLoadingLead] = useState(true);
+  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
+  const [isMuted, setIsMuted] = useState(true);
+  const videoRef = useRef<VideoPlayer>(null);
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const heartScale = useRef(new Animated.Value(1)).current;
 
@@ -97,6 +101,31 @@ export default function PropertyDetailScreen() {
         propertyTitle: property.title,
       },
     });
+  };
+
+  const toggleVideoPlayback = async () => {
+    if (!videoRef.current) return;
+    
+    if (isVideoPlaying) {
+      await videoRef.current.pauseAsync();
+    } else {
+      await videoRef.current.playAsync();
+    }
+    setIsVideoPlaying(!isVideoPlaying);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+  };
+
+  const toggleMute = async () => {
+    if (!videoRef.current) return;
+    await videoRef.current.setIsMutedAsync(!isMuted);
+    setIsMuted(!isMuted);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+  };
+
+  const onVideoPlaybackStatusUpdate = (status: AVPlaybackStatus) => {
+    if (status.isLoaded) {
+      setIsVideoPlaying(status.isPlaying);
+    }
   };
 
   const isContactLocked = user?.role === 'tenant' && !leadStatus?.lead?.contactUnlocked;
@@ -191,6 +220,45 @@ export default function PropertyDetailScreen() {
           )}
         </View>
 
+        {/* Video Section */}
+        {property.videoUrl && (
+          <View style={styles.videoSection}>
+            <View style={styles.videoContainer}>
+              <VideoPlayer
+                ref={videoRef}
+                source={{ uri: getImageUrl(property.videoUrl) }}
+                style={styles.video}
+                resizeMode={ResizeMode.COVER}
+                isLooping
+                isMuted={isMuted}
+                onPlaybackStatusUpdate={onVideoPlaybackStatusUpdate}
+                useNativeControls={false}
+              />
+              
+              {/* Video Overlay Controls */}
+              <View style={styles.videoOverlay}>
+                <Pressable style={styles.videoPlayButton} onPress={toggleVideoPlayback}>
+                  {isVideoPlaying ? (
+                    <Pause size={32} color={Colors.white} fill={Colors.white} />
+                  ) : (
+                    <Play size={32} color={Colors.white} fill={Colors.white} />
+                  )}
+                </Pressable>
+
+                <View style={styles.videoBottomControls}>
+                  <Pressable style={styles.videoControlButton} onPress={toggleMute}>
+                    <Volume2 size={20} color={isMuted ? Colors.textSecondary : Colors.white} />
+                  </Pressable>
+                  <View style={styles.videoBadge}>
+                    <Video size={12} color={Colors.gold} />
+                    <Text style={styles.videoBadgeText}>Property Video</Text>
+                  </View>
+                </View>
+              </View>
+            </View>
+          </View>
+        )}
+
         <Animated.View style={[styles.contentSection, { opacity: fadeAnim }]}>
           <View style={styles.badgesRow}>
             {property.isDirectOwner && (
@@ -257,12 +325,20 @@ export default function PropertyDetailScreen() {
               </View>
               <Text style={styles.quickActionLabel}>Negotiate</Text>
             </Pressable>
-            <Pressable style={styles.quickAction}>
-              <View style={styles.quickActionIcon}>
-                <Video size={20} color={Colors.gold} />
-              </View>
-              <Text style={styles.quickActionLabel}>View Video</Text>
-            </Pressable>
+            {property.videoUrl && (
+              <Pressable 
+                style={styles.quickAction}
+                onPress={() => {
+                  // Scroll to video section
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                }}
+              >
+                <View style={styles.quickActionIcon}>
+                  <Video size={20} color={Colors.gold} />
+                </View>
+                <Text style={styles.quickActionLabel}>View Video</Text>
+              </Pressable>
+            )}
           </View>
 
           <View style={styles.locationRow}>
@@ -455,6 +531,68 @@ const styles = StyleSheet.create({
   imageContainer: {
     height: 380,
     position: 'relative' as const,
+  },
+  videoSection: {
+    paddingHorizontal: 20,
+    marginTop: -40,
+    marginBottom: 20,
+  },
+  videoContainer: {
+    height: 240,
+    borderRadius: 20,
+    overflow: 'hidden',
+    backgroundColor: Colors.card,
+    borderWidth: 2,
+    borderColor: Colors.gold,
+    position: 'relative' as const,
+  },
+  video: {
+    width: '100%',
+    height: '100%',
+  },
+  videoOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: 'center' as const,
+    alignItems: 'center' as const,
+  },
+  videoPlayButton: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    justifyContent: 'center' as const,
+    alignItems: 'center' as const,
+  },
+  videoBottomControls: {
+    position: 'absolute' as const,
+    bottom: 12,
+    left: 12,
+    right: 12,
+    flexDirection: 'row' as const,
+    justifyContent: 'space-between',
+    alignItems: 'center' as const,
+  },
+  videoControlButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    justifyContent: 'center' as const,
+    alignItems: 'center' as const,
+  },
+  videoBadge: {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    gap: 4,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 8,
+  },
+  videoBadgeText: {
+    color: Colors.gold,
+    fontSize: 11,
+    fontWeight: '700' as const,
   },
   heroImage: {
     width: SCREEN_WIDTH,

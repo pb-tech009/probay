@@ -57,6 +57,7 @@ async function calculateTrustScore(userId) {
  * Factor 1: Property Quality Score (0-25 points)
  * - Complete details
  * - Good images
+ * - Video uploaded
  * - Active properties
  */
 function calculatePropertyScore(properties) {
@@ -66,6 +67,11 @@ function calculatePropertyScore(properties) {
 
     properties.forEach(property => {
         let score = 0;
+
+        // Has video (10 points) - MAJOR TRUST BOOST
+        if (property.videoUrl) {
+            score += 10;
+        }
 
         // Has images (5 points)
         if (property.images && property.images.length > 0) {
@@ -92,7 +98,7 @@ function calculatePropertyScore(properties) {
 
     // Average score per property, scaled to 25 points
     const avgScore = totalScore / properties.length;
-    return (avgScore / 15) * 25; // Max 15 points per property → scale to 25
+    return (avgScore / 25) * 25; // Max 25 points per property → scale to 25
 }
 
 /**

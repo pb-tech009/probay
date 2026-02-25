@@ -8,7 +8,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useQuery } from '@tanstack/react-query';
 import { router } from 'expo-router';
-import { Heart, Plus, Sparkles, BedDouble, Building, MapPin } from 'lucide-react-native';
+import { Heart, Plus, Sparkles, BedDouble, Building, MapPin, Video } from 'lucide-react-native';
 import Colors from '@/constants/colors';
 import { useAuth } from '@/providers/AuthProvider';
 import { propertyAPI } from '@/services/api';
@@ -78,6 +78,12 @@ export default function HomeScreen() {
           <Sparkles size={10} color="#000" />
           <Text style={styles.featuredBadgeText}>FEATURED</Text>
         </View>
+        {property.videoUrl && (
+          <View style={styles.videoBadge}>
+            <Video size={10} color={Colors.gold} />
+            <Text style={styles.videoBadgeText}>VIDEO</Text>
+          </View>
+        )}
         <Text style={styles.featuredPrice}>{formatPrice(property.price)}</Text>
         <Text style={styles.featuredTitle} numberOfLines={1}>{property.title}</Text>
         <View style={styles.featuredLocation}>
@@ -408,6 +414,25 @@ const styles = StyleSheet.create({
   },
   featuredBadgeText: {
     color: '#000',
+    fontSize: 9,
+    fontWeight: '800' as const,
+    letterSpacing: 0.5,
+  },
+  videoBadge: {
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 5,
+    alignSelf: 'flex-start' as const,
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    gap: 4,
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: Colors.gold,
+  },
+  videoBadgeText: {
+    color: Colors.gold,
     fontSize: 9,
     fontWeight: '800' as const,
     letterSpacing: 0.5,

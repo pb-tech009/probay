@@ -7,6 +7,7 @@ const fs = require('fs');
 const { body, validationResult } = require('express-validator');
 const { createNotification, NotificationTemplates } = require('../utils/notificationHelper');
 const { checkDuplicateAddress, checkSimilarProperties } = require('../utils/duplicateDetection');
+const { compressVideoAsync } = require('../utils/videoCompression');
 
 // Multer Config
 const storage = multer.diskStorage({
@@ -70,6 +71,17 @@ router.post('/create', [
 
         const imageUrls = req.files['images'].map(file => `/uploads/${file.filename}`);
         const videoUrl = req.files['video'] ? `/uploads/${req.files['video'][0].filename}` : null;
+
+        // Compress video in background if uploaded
+        if (videoUrl && req.files['video']) {
+            const videoPath = path.join(__dirname, '..', 'uploads', req.files['video'][0].filename);
+            console.log('🎬 Video uploaded, starting background compression...');
+            compressVideoAsync(videoPath, (err, compressedPath) => {
+                if (!err) {
+                    console.log('✅ Video compression completed:', compressedPath);
+                }
+            });
+        }
 
         // Check for duplicate address
         const duplicates = await checkDuplicateAddress(address, city, area);
@@ -164,6 +176,17 @@ router.post('/create-force', [
 
         const imageUrls = req.files['images'].map(file => `/uploads/${file.filename}`);
         const videoUrl = req.files['video'] ? `/uploads/${req.files['video'][0].filename}` : null;
+
+        // Compress video in background if uploaded (force-create)
+        if (videoUrl && req.files['video']) {
+            const videoPath = path.join(__dirname, '..', 'uploads', req.files['video'][0].filename);
+            console.log('🎬 Video uploaded (force-create), starting background compression...');
+            compressVideoAsync(videoPath, (err, compressedPath) => {
+                if (!err) {
+                    console.log('✅ Video compression completed:', compressedPath);
+                }
+            });
+        }
 
         const newProperty = new Property({
             title,
