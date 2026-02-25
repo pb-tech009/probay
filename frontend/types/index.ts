@@ -23,6 +23,7 @@ export interface PropertyOwner {
   avgResponseTime?: number;
   fastResponseCount?: number;
   totalResponses?: number;
+  trustScore?: number;
 }
 
 export interface Review {

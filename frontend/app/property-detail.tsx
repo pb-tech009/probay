@@ -313,8 +313,18 @@ export default function PropertyDetailScreen() {
             contentFit="cover"
           />
           <View style={styles.ownerInfo}>
-            <Text style={styles.ownerRole}>Pro Partner</Text>
-            <Text style={styles.ownerName}>{ownerName}</Text>
+            <View style={styles.ownerHeader}>
+              <View>
+                <Text style={styles.ownerRole}>Pro Partner</Text>
+                <Text style={styles.ownerName}>{ownerName}</Text>
+              </View>
+              {property.owner?.trustScore !== undefined && property.owner.trustScore > 0 && (
+                <View style={styles.trustScoreBadge}>
+                  <Star size={10} color={Colors.gold} fill={Colors.gold} />
+                  <Text style={styles.trustScoreText}>{property.owner.trustScore}</Text>
+                </View>
+              )}
+            </View>
             {isContactLocked && (
               <Text style={styles.lockedPhone}>🔒 {displayPhone}</Text>
             )}
@@ -697,6 +707,11 @@ const styles = StyleSheet.create({
     flex: 1,
     marginLeft: 12,
   },
+  ownerHeader: {
+    flexDirection: 'row' as const,
+    justifyContent: 'space-between',
+    alignItems: 'flex-start' as const,
+  },
   ownerRole: {
     color: Colors.textSecondary,
     fontSize: 11,
@@ -705,6 +720,20 @@ const styles = StyleSheet.create({
     color: Colors.textPrimary,
     fontSize: 15,
     fontWeight: '700' as const,
+  },
+  trustScoreBadge: {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    gap: 3,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    backgroundColor: Colors.gold,
+    borderRadius: 6,
+  },
+  trustScoreText: {
+    fontSize: 10,
+    fontWeight: '800' as const,
+    color: '#000',
   },
   lockedPhone: {
     color: Colors.textSecondary,
