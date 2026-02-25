@@ -43,17 +43,13 @@ jobs:
           
           # Deploy Backend
           ssh -i ~/.ssh/ec2_key.pem $EC2_USER@$EC2_HOST << 'EOF'
-            cd /home/ubuntu/propbay
+            cd /home/ubuntu/probay
             git pull origin main
             
             # Backend deployment
             cd backend
             npm install
-            pm2 restart propbay-backend || pm2 start index.js --name propbay-backend
-            
-            # Frontend build (if needed for web)
-            cd ../frontend
-            npm install
+            pm2 restart backend || pm2 start index.js --name backend
             
             echo "✅ Deployment completed successfully!"
           EOF
