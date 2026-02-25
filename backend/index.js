@@ -59,6 +59,10 @@ mongoose.connect(process.env.MONGODB_URI)
 const { initializeFirebase } = require('./utils/firebase');
 initializeFirebase();
 
+// Start Cron Jobs (Automatic Tasks)
+const { startAllCronJobs } = require('./utils/cronJobs');
+startAllCronJobs();
+
 // Socket.io for Real-time Chat
 io.on('connection', (socket) => {
     socket.on('join_chat', (data) => {
