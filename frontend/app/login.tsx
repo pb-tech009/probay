@@ -63,7 +63,7 @@ export default function LoginScreen() {
       if (result.user.role === 'none') {
         router.replace({ pathname: '/role-selection' as any, params: { userId: result.user._id } });
       } else {
-        router.replace('/tabs' as any);
+        router.replace('/(tabs)/home' as any);
       }
     } catch (e: any) {
       Alert.alert('Error', e.message || 'Invalid OTP');

@@ -108,7 +108,7 @@ export default function EditPropertyScreen() {
               }
 
               Alert.alert('Success', 'Property deleted successfully', [
-                { text: 'OK', onPress: () => router.replace('/tabs/profile' as any) }
+                { text: 'OK', onPress: () => router.replace('/(tabs)/profile' as any) }
               ]);
             } catch (error: any) {
               Alert.alert('Error', error.message || 'Failed to delete property');
